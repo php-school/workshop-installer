@@ -92,7 +92,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $binDir     = str_replace('\\', '/', $composer->getConfig()->get('bin-dir'));
         $currentDir = str_replace('\\', '/', __DIR__);
         
-        $path       = sprintf('%s/../ansicon/%d', $currentDir, $this->getArchitecture());
+        $path       = sprintf('%s/../ansicon/64', $currentDir);
         $ansiConDir = realpath($path);
         
         foreach(new \DirectoryIterator($ansiConDir) as $file) {
@@ -114,14 +114,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         file_put_contents(__DIR__ . '/../set-path.ps1', $originalContent);
 
         $ansicon = str_replace('/', '\\', sprintf('%s/ansicon -i', $binDir));
-        var_dump($ansicon);
         shell_exec($ansicon);
         
-        
-        //echo sprintf('setx path %s;%s', str_replace('/', '\\', $vendorDir), '%PATH%');
-        //shell_exec(sprintf('setx path %s;%s', str_replace('/', '\\', $vendorDir), '%PATH%'));
-        
-
         $this->ansiconInstalled = true;
     }
 
