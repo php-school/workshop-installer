@@ -110,7 +110,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 continue;
             }
             
-            copy($file, $vendorDir);
+            copy($file->getRealPath(), sprintf('%s/%s', $vendorDir, $file->getFilename()));
         }
 
         $event->getIO()->write('<info>Installing Ansicon so console colours are supported.</info>');
