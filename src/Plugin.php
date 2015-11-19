@@ -77,16 +77,20 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
+        $event->getIO()->write('1');
         //if not windows
-        if (DIRECTORY_SEPARATOR !== '\\') {
+        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
             return;
         }
-        
+        $event->getIO()->write('2');
+
+
         $this->ansiconInstalled = $this->checkAnsiconInstalled();
 
         if ($this->ansiconInstalled) {
             return;
         }
+        $event->getIO()->write('3');
 
         $event->getIO()->write('<info>Installing Ansicon so console colours are supported.</info>');
         $targetDirectory = sprintf('%s/../ansicon/x%d/ansicon.exe', __DIR__, $this->getArchitecture());
