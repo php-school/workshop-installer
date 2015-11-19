@@ -61,7 +61,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
-        if (static::PACKAGE_TYPE !== $event->getOperation()->getPackage()) {
+        if (static::PACKAGE_TYPE !== $event->getOperation()->getPackage()->getType()) {
             return;
         }
         
