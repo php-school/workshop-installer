@@ -114,6 +114,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         file_put_contents(__DIR__ . '/../set-path.ps1', $originalContent);
 
         $ansicon = str_replace('/', '\\', sprintf('%s/ansicon -i', $binDir));
+        var_dump($ansicon);
         shell_exec($ansicon);
         
         
