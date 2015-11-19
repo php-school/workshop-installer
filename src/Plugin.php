@@ -96,7 +96,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $vendorDir  = $composer->getConfig()->get('vendor-dir');
         
         $currentDir = str_replace('\\', '/', __DIR__);
-        $ansiConDir = realpath(sprintf('%s/../ansicon/x%d', $currentDir, $this->getArchitecture()));
+        var_dump($currentDir);
+        
+        $path       = sprintf('%s/../ansicon/x%d', $currentDir, $this->getArchitecture());
+        var_dump($path);
+        $ansiConDir = realpath($path);
+        var_dump($path);
+        
         
         foreach(new \DirectoryIterator($ansiConDir) as $file) {
             copy($file, $vendorDir);
