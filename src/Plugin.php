@@ -77,23 +77,19 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
-        $event->getIO()->write('1');
         //if not windows
         if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
             return;
         }
-        $event->getIO()->write('2');
-
 
         $this->ansiconInstalled = $this->checkAnsiconInstalled();
 
         if ($this->ansiconInstalled) {
             return;
         }
-        $event->getIO()->write('3');
         
         $composer   = $event->getComposer();
-        $vendorDir  = str_replace('\\', '/', $composer->getConfig()->get('vendor-dir'));
+        $binDir     = str_replace('\\', '/', $composer->getConfig()->get('bin-dir'));
         $currentDir = str_replace('\\', '/', __DIR__);
         
         $path       = sprintf('%s/../ansicon/%d', $currentDir, $this->getArchitecture());
@@ -104,13 +100,26 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 continue;
             }
             
-            copy($file->getRealPath(), sprintf('%s/%s', $vendorDir, $file->getFilename()));
+            copy($file->getRealPath(), sprintf('%s/%s', $binDir, $file->getFilename()));
         }
 
         $event->getIO()->write('<info>Installing Ansicon so console colours are supported.</info>');
-        echo sprintf('setx path %s;%s', str_replace('/', '\\', $vendorDir), '%PATH%');
-        shell_exec(sprintf('setx path %s;%s', str_replace('/', '\\', $vendorDir), '%PATH%'));
-        shell_exec('ansicon -i');
+        
+        $originalContent    = file_get_contents(__DIR__ . '/../set-path.ps1');
+        $scriptContent      = str_replace('__COMPOSER_BIN__', $binDir, $originalContent);
+        file_put_contents(__DIR__ . '/../set-path.ps1', $scriptContent);
+        
+        //exec(sprintf('powershell -File %s', realpath(__DIR__ . '/../set-path.ps1')), $output, $return);
+        //var_dump($return);
+        file_put_contents(__DIR__ . '/../set-path.ps1');
+
+        $ansicon = str_replace('/', '\\', sprintf('%s/ansicon -i', $binDir));
+        shell_exec($ansicon);
+        
+        
+        //echo sprintf('setx path %s;%s', str_replace('/', '\\', $vendorDir), '%PATH%');
+        //shell_exec(sprintf('setx path %s;%s', str_replace('/', '\\', $vendorDir), '%PATH%'));
+        
 
         $this->ansiconInstalled = true;
     }
