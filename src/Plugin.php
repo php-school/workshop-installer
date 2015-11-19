@@ -82,7 +82,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
-        $this->ansiconInstalled = $this->checkAnsiconInstalled();
+        $this->ansiconInstalled = $this->isAnsiconInstalled();
 
         if ($this->ansiconInstalled) {
             return;
