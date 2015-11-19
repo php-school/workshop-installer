@@ -82,7 +82,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
-        $this->ansiconInstalled = $this->checkAnsiconInstalled();
+        //$this->ansiconInstalled = $this->checkAnsiconInstalled();
 
         if ($this->ansiconInstalled) {
             return;
@@ -114,7 +114,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         
         var_dump($output);
         
-        if ($return === 0) {
+        //return code seems to be always 0 even when error's
+        //however, there is no output on success
+        if (!empty($output)) {
             throw new \RuntimeException('Setting environment failed. Please run in a shell with admin privileges');
         }
         file_put_contents(__DIR__ . '/../set-path.ps1', $originalContent);
