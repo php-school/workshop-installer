@@ -101,9 +101,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $path       = sprintf('%s/../ansicon/x%d', $currentDir, $this->getArchitecture());
         var_dump($path);
         $ansiConDir = realpath($path);
-        var_dump($path);
-        
-        
+        var_dump(file_exists($path));
+        var_dump($ansiConDir);
+        var_dump(file_exists($ansiConDir));
+
+
+
         foreach(new \DirectoryIterator($ansiConDir) as $file) {
             copy($file, $vendorDir);
         }
