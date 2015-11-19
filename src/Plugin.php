@@ -131,7 +131,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     private function isAnsiconInstalled()
     {
-        exec("where /F /Q" . escapeshellarg('ansicon'), $output, $return);
+        exec("where /F /Q ansicon", $output, $return);
         return $return == 0;
     }
 
