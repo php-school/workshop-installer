@@ -94,6 +94,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         
         $composer   = $event->getComposer();
         $vendorDir  = $composer->getConfig()->get('vendor-dir');
+        var_dump($vendorDir);
         
         $currentDir = str_replace('\\', '/', __DIR__);
         
