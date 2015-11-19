@@ -93,7 +93,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $event->getIO()->write('3');
         
         $composer   = $event->getComposer();
-        $vendorDir  = $composer->getConfig()->get('vendor-dir');
+        $vendorDir  = str_replace('\\', '/', $composer->getConfig()->get('vendor-dir'));
         var_dump($vendorDir);
         
         $currentDir = str_replace('\\', '/', __DIR__);
@@ -110,7 +110,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
 
         $event->getIO()->write('<info>Installing Ansicon so console colours are supported.</info>');
-        var_dump(sprintf('setx path %s;%s', $vendorDir, getenv('PATH')));
+        var_dump(sprintf('setx path %s;%s', str_replace('/', '\\', $vendorDir), getenv('PATH')));
         //shell_exec(sprintf('setx path %s;%s', $vendorDir, getenv('PATH')));
         //shell_exec('ansicon -i');
 
