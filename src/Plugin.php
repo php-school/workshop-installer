@@ -91,14 +91,21 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
         $event->getIO()->write('3');
+        
+        $composer   = $event->getComposer();
+        $vendorDir  = $composer->getConfig()->get('vendor-dir');
+        
+        $currentDir = str_replace('\\', '/', __DIR__);
+        $ansiConDir = realpath(sprintf('%s/../ansicon/x%d', $currentDir, $this->getArchitecture()));
+        
+        foreach(new \DirectoryIterator($ansiConDir) as $file) {
+            copy($file, $vendorDir);
+        }
 
         $event->getIO()->write('<info>Installing Ansicon so console colours are supported.</info>');
-        $targetDirectory = realpath(sprintf('%s/../ansicon/x%d', __DIR__, $this->getArchitecture()));
-        $newPath = sprintf('%s;%s', $targetDirectory, getenv('PATH'));
-        $cmd = '```setx path ' . $newPath . '```';
-        var_dump($cmd);
-        //shell_exec('setx path ' . $newPath);
-        //shell_exec('ansicon -i');
+        shell_exec(sprintf('setx path %s;%s', $vendorDir, getenv('PATH')));
+        shell_exec('ansicon -i');
+
         $this->ansiconInstalled = true;
     }
 
