@@ -8,7 +8,6 @@ use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
-use Composer\Script\ScriptEvents;
 
 /**
  * Class Plugin
@@ -19,6 +18,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 {
 
     /**
+     * @var string
+     */
+    const PACKAGE_TYPE = 'php-school-workshop';
+
+    /**
+     * @var bool
+     */
+    private $ansiconInstalled = false;
+
+    /**
      * Apply plugin modifications to composer
      *
      * @param Composer $composer
@@ -26,7 +35,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        
     }
 
     /**
@@ -36,14 +44,73 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         return array(
             PackageEvents::POST_PACKAGE_INSTALL => [
-                ['test', 0]  
+                ['install', 0]  
+            ],
+            PackageEvents::POST_PACKAGE_UPDATE => [
+                ['install', 0]
             ]
         );
     }
 
-    public function test(PackageEvent $event)
+    /**
+     * @param PackageEvent $event
+     */
+    public function install(PackageEvent $event)
     {
-        $event->getIO()->writeError('YO WASSSSSSSUP');   
+        if ($event->getOperation()->getJobType() !== 'install') {
+            return;
+        }
+
+        if (static::PACKAGE_TYPE !== $event->getOperation()->getPackage()) {
+            return;
+        }
+        
+        $this->installAnsicon($event);
     }
-    
+
+    /**
+     * @param PackageEvent $event
+     */
+    private function installAnsicon(PackageEvent $event)
+    {
+        if ($this->ansiconInstalled) {
+            return;
+        }
+
+        //if not windows
+        if (DIRECTORY_SEPARATOR !== '\\') {
+            return;
+        }
+        
+        $this->ansiconInstalled = $this->checkAnsiconInstalled();
+
+        if ($this->ansiconInstalled) {
+            return;
+        }
+
+        $event->getIO()->write('<info>Installing Ansicon so console colours are supported.</info>');
+        $targetDirectory = sprintf('%s/../ansicon/x%d/ansicon.exe', __DIR__, $this->getArchitecture());
+        $newPath = sprintf('%s;%s', $targetDirectory, getenv('PATH'));
+        putenv('PATH=' . $newPath);
+
+        $this->ansiconInstalled = true;
+    }
+
+    /**
+     * @return bool
+     */
+    private function checkAnsiconInstalled()
+    {
+        $result = trim(shell_exec("where /F " . escapeshellarg('ansicon')), "\n\r");
+        // "Where" can return several lines.
+        return explode("\n", $result)[0];
+    }
+
+    /**
+     * @return int
+     */
+    private function getArchitecture()
+    {
+        return 8 * PHP_INT_SIZE;
+    }
 }
