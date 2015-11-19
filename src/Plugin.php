@@ -93,7 +93,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $event->getIO()->write('3');
 
         $event->getIO()->write('<info>Installing Ansicon so console colours are supported.</info>');
-        $targetDirectory = realpath(sprintf('%s/../ansicon/x%d/ansicon.exe', __DIR__, $this->getArchitecture()));
+        $targetDirectory = realpath(sprintf('%s/../ansicon/x%d', __DIR__, $this->getArchitecture()));
         $newPath = sprintf('%s;%s', $targetDirectory, getenv('PATH'));
         putenv('PATH=' . $newPath);
 
