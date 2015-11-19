@@ -109,8 +109,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $scriptContent      = str_replace('__COMPOSER_BIN__', $binDir, $originalContent);
         file_put_contents(__DIR__ . '/../set-path.ps1', $scriptContent);
         
-        //exec(sprintf('powershell -File %s', realpath(__DIR__ . '/../set-path.ps1')), $output, $return);
-        //var_dump($return);
+        exec(sprintf('powershell -File %s', realpath(__DIR__ . '/../set-path.ps1')), $output, $return);
+        
+        var_dump($return);
+        
         file_put_contents(__DIR__ . '/../set-path.ps1', $originalContent);
 
         $ansicon = str_replace('/', '\\', sprintf('%s/ansicon -i', $binDir));
