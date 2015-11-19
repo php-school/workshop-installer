@@ -112,10 +112,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         var_dump(sprintf('powershell -File %s', realpath(__DIR__ . '/../set-path.ps1')));
         exec(sprintf('powershell -File %s', realpath(__DIR__ . '/../set-path.ps1')), $output, $return);
         
-        var_dump($return);
-        
-        //file_put_contents(__DIR__ . '/../set-path.ps1', $originalContent);
-
+        if ($return === 0) {
+            throw new \RuntimeException('Setting environment failed. Please run in a shell with admin privileges');
+        }
+        file_put_contents(__DIR__ . '/../set-path.ps1', $originalContent);
         $ansicon = str_replace('/', '\\', sprintf('%s/ansicon -i', $binDir));
         shell_exec($ansicon);
         
