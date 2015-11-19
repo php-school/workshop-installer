@@ -98,7 +98,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $cmd = '```setx path ' . $newPath . '```';
         var_dump($cmd);
         //shell_exec('setx path ' . $newPath);
-        shell_exec('ansicon -i');
+        //shell_exec('ansicon -i');
         $this->ansiconInstalled = true;
     }
 
