@@ -44,7 +44,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         return array(
             PackageEvents::POST_PACKAGE_INSTALL => [
-                ['install', 0]  
+                ['install', 0]
             ],
             PackageEvents::POST_PACKAGE_UPDATE => [
                 ['install', 0]
@@ -64,7 +64,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (static::PACKAGE_TYPE !== $event->getOperation()->getPackage()->getType()) {
             return;
         }
-        
+
         $this->installAnsicon($event);
     }
 
@@ -82,58 +82,75 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
-        //$this->ansiconInstalled = $this->checkAnsiconInstalled();
+        $this->ansiconInstalled = $this->checkAnsiconInstalled();
 
         if ($this->ansiconInstalled) {
             return;
         }
-        
+
         $composer   = $event->getComposer();
-        $binDir     = str_replace('\\', '/', $composer->getConfig()->get('bin-dir'));
-        $currentDir = str_replace('\\', '/', __DIR__);
-        
-        $path       = sprintf('%s/../ansicon/64', $currentDir);
-        $ansiConDir = realpath($path);
-        
+        $binDir     = $this->unixPath($composer->getConfig()->get('bin-dir'));
+        $ansiConDir = realpath(sprintf('%s/../ansicon/64', $this->unixPath(__DIR__)));
+
         foreach(new \DirectoryIterator($ansiConDir) as $file) {
             if ($file->isDot()) {
                 continue;
             }
-            
+
             copy($file->getRealPath(), sprintf('%s/%s', $binDir, $file->getFilename()));
         }
 
         $event->getIO()->write('<info>Installing Ansicon so console colours are supported.</info>');
-        
+
         $originalContent    = file_get_contents(__DIR__ . '/../set-path.ps1');
         $scriptContent      = str_replace('__COMPOSER_BIN__', $binDir, $originalContent);
         file_put_contents(__DIR__ . '/../set-path.ps1', $scriptContent);
-        
-        var_dump(sprintf('powershell -File %s', realpath(__DIR__ . '/../set-path.ps1')));
-        exec(sprintf('powershell -File %s', realpath(__DIR__ . '/../set-path.ps1')), $output, $return);
-        
-        var_dump($output);
-        
+
+        exec(
+            sprintf(
+                'powershell -File %s', 
+                $this->windowsPath(realpath($this->unixPath(__DIR__) . '/../set-path.ps1'))
+            ), 
+            $output, 
+            $return
+        );
+
         //return code seems to be always 0 even when error's
         //however, there is no output on success
         if (!empty($output)) {
             throw new \RuntimeException('Setting environment failed. Please run in a shell with admin privileges');
         }
-        file_put_contents(__DIR__ . '/../set-path.ps1', $originalContent);
-        $ansicon = str_replace('/', '\\', sprintf('%s/ansicon -i', $binDir));
-        shell_exec($ansicon);
-        
+        file_put_contents($this->unixPath(__DIR__) . '/../set-path.ps1', $originalContent);
+        shell_exec($this->windowsPath(sprintf('%s/ansicon -i', $binDir)));
+
         $this->ansiconInstalled = true;
     }
 
     /**
      * @return bool
      */
-    private function checkAnsiconInstalled()
+    private function isAnsiconInstalled()
     {
-        $result = trim(shell_exec("where /F " . escapeshellarg('ansicon')), "\n\r");
-        // "Where" can return several lines.
-        return explode("\n", $result)[0];
+        exec("where /F /Q" . escapeshellarg('ansicon'), $output, $return);
+        return $return == 0;
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    private function unixPath($path)
+    {
+        return str_replace('\\', '/', $path);
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function windowsPath($path)
+    {
+        return str_replace('/', '\\', $path);
     }
 
     /**
