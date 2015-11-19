@@ -106,6 +106,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         var_dump(file_exists($ansiConDir));
         
         foreach(new \DirectoryIterator($ansiConDir) as $file) {
+            if ($file->isDot()) {
+                continue;
+            }
+            
             copy($file, $vendorDir);
         }
 
