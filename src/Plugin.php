@@ -65,7 +65,47 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
+        $this->installBinary($event);
         $this->installAnsicon($event);
+    }
+
+    /**
+     * @param PackageEvent $event
+     * @return bool|void
+     */
+    public function installBinary(PackageEvent $event)
+    {
+        $binLocation = $event
+            ->getComposer()
+            ->getConfig()
+            ->get('bin-dir');
+
+        $binaries = $event
+            ->getOperation()
+            ->getPackage()
+            ->getBinaries();
+
+        if (count($binaries) === 0) {
+            return;
+        }
+
+        $binary = basename(array_values($binaries)[0]);
+        $binaryLocation = sprintf('%s/%s', $binLocation, $binary);
+
+
+        $os = PHP_OS;
+        if (strpos($os, 'Darwin') === 0) {
+            //mac
+            return symlink($binaryLocation, sprintf('/usr/local/bin/%s', $binary));
+        }
+
+        if (strpos($os, 'WIN') === 0) {
+            //windows
+            return;
+        }
+
+        //linux
+        return symlink($binaryLocation, sprintf('/usr/local/bin/%s', $binary));
     }
 
     /**
