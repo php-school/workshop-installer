@@ -93,7 +93,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
 
         //if target exists and is symlink then we just remove it
-        if (file_exists($target) && is_link($target)) {
+        if (is_link($target)) {
             unlink($target);
         }
 
@@ -118,11 +118,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function unInstallBinary(PackageEvent $event)
     {
-        $binLocation = $event
-            ->getComposer()
-            ->getConfig()
-            ->get('bin-dir');
-
         $binaries = $event
             ->getOperation()
             ->getPackage()
@@ -132,11 +127,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
-        $binary         = basename(array_values($binaries)[0]);
-        $target         = $this->getInstallLocation($binary);
+        $binary = basename(array_values($binaries)[0]);
+        $target = $this->getInstallLocation($binary);
 
         //remove link if it exists
-        if (file_exists($target) && is_link($target)) {
+        if (is_link($target)) {
             unlink($target);
         }
     }
