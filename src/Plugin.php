@@ -97,7 +97,22 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             unlink($target);
         }
 
-        return symlink($binaryLocation, $target);
+        if (is_writable(dirname($target))) {
+            return symlink($binaryLocation, $target);
+        }
+
+        $event->getIO()->write(
+            sprintf(
+                '<error>The directory: %s is not writeable. The workshop %s cannot be installed.</error>',
+                dirname($target),
+                $binary
+            )
+        );
+        $event->getIO()->write("");
+        $event->getIO()->write(sprintf('You have two options now:'));
+        $event->getIO()->write(sprintf(' 1. Add the composer global bin dir: <info>%s</info> to your PATH variable', $binLocation));
+        $event->getIO()->write(sprintf(' 2. Run <info>%s</info> directly with <info>%s</info>', $binary, $binaryLocation));
+        $event->getIO()->write("");
     }
 
     /**
